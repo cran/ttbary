@@ -6,7 +6,13 @@
 \alias{pplist_samecard}
 \alias{pplist_diffcard}
 \title{Simulated Point Pattern Lists}
-\format{Objects of class \code{pplist}, which are essentially lists of \code{ppp}-objects.}
+\format{
+Objects of class \code{pplist}, which are essentially lists of \code{ppp}-objects.
+
+An object of class \code{ppplist} (inherits from \code{solist}, \code{anylist}, \code{listof}, \code{list}) of length 80.
+
+An object of class \code{ppplist} (inherits from \code{solist}, \code{anylist}, \code{listof}, \code{list}) of length 50.
+}
 \usage{
 pplist_samecard
 

@@ -122,9 +122,10 @@ plot(res1$barycenter, add=TRUE, col="blue", pch=16) #adding the computed barycen
 
 }
 \references{
-Raoul Müller, Dominic Schuhmacher and Jorge Mateu (2019).\cr
+Raoul Müller, Dominic Schuhmacher and Jorge Mateu (2020).\cr
             Metrics and Barycenters for Point Pattern Data.\cr
-            Preprint \href{https://arxiv.org/abs/1909.07266}{arXiv:1909.07266}
+            Statistics and Computing 30, 953-972.\cr
+            \doi{10.1007/s11222-020-09932-y}
 }
 \seealso{
 \code{\link{kmeansbary}} for a similar function that works without epsilon relaxation

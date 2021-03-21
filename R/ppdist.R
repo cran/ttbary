@@ -52,9 +52,10 @@
 #'         
 #'         Note that having more than one minus implies that the matching is non-unique.
 #'    
-#' @references Raoul Müller, Dominic Schuhmacher and Jorge Mateu (2019).\cr
+#' @references Raoul Müller, Dominic Schuhmacher and Jorge Mateu (2020).\cr
 #'             Metrics and Barycenters for Point Pattern Data.\cr
-#'             Preprint \href{https://arxiv.org/abs/1909.07266}{arXiv:1909.07266}
+#'             Statistics and Computing 30, 953-972.\cr
+#'             \doi{10.1007/s11222-020-09932-y}
 #'                   
 #' @author Dominic Schuhmacher \email{schuhmacher@math.uni-goettingen.de} 
 #'
@@ -62,15 +63,15 @@
 #'   # small example
 #'   # -------------
 #'   set.seed(181230)
-#'   xi <- spatstat::rpoispp(20)
-#'   eta <- spatstat::rpoispp(20)
-#'   dmat <- spatstat::crossdist(xi,eta)
+#'   xi <- spatstat.core::rpoispp(20)
+#'   eta <- spatstat.core::rpoispp(20)
+#'   dmat <- spatstat.geom::crossdist(xi,eta)
 #'   res <- ppdist(dmat, penalty=1,  type="rtt", ret_matching=TRUE, p=1)
 #'   plotmatch(xi, eta, dmat, res, penalty=1, p=1)
 #'   res$dist
 #' 
 #'   # for comparison: ospa-distance computation from spatstat:
-#'   res_ospa <- spatstat::pppdist(xi,eta,"spa")
+#'   res_ospa <- spatstat.geom::pppdist(xi,eta,"spa")
 #'   res_ospa$distance  # exactly the same as above because nothing gets cut off 
 #' 
 #' 
@@ -85,7 +86,7 @@
 #'   # for comparison: ospa-distance computation from spatstat
 #'   # (if things do get cut off, we have to ensure that the cutoff distances
 #'   # are the same, thus cutoff = 2^(1/p) * penalty):
-#'   res_ospa <- spatstat::pppdist(xi,eta,"spa",cutoff=0.2)
+#'   res_ospa <- spatstat.geom::pppdist(xi,eta,"spa",cutoff=0.2)
 #'   res_ospa$distance  # NOT the same as above
 #'   res_ospa$distance - abs(xi$n-eta$n) * 0.1 / max(xi$n,eta$n)  # the same as above
 #'   
@@ -93,9 +94,9 @@
 #'   # a larger example
 #'   # --------------------------------------------------------------- 
 #'   set.seed(190203)
-#'   xi <- spatstat::rpoispp(2000)
-#'   eta <- spatstat::rpoispp(2000)
-#'   dmat <- spatstat::crossdist(xi,eta)
+#'   xi <- spatstat.core::rpoispp(2000)
+#'   eta <- spatstat.core::rpoispp(2000)
+#'   dmat <- spatstat.geom::crossdist(xi,eta)
 #'   res <- ppdist(dmat, penalty = 0.1,  type = "rtt", ret_matching = TRUE, p = 1)
 #'   res$dist
 #'   # takes about 2-3 seconds

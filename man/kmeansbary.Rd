@@ -85,9 +85,10 @@ sumppdist(res$barycenter, pplist_samecard, penalty=0.1, type="tt", p=2, q=2)
 
 }
 \references{
-Raoul Müller, Dominic Schuhmacher and Jorge Mateu (2019).\cr
+Raoul Müller, Dominic Schuhmacher and Jorge Mateu (2020).\cr
             Metrics and Barycenters for Point Pattern Data.\cr
-            Preprint \href{https://arxiv.org/abs/1909.07266}{arXiv:1909.07266}
+            Statistics and Computing 30, 953-972.\cr
+            \doi{10.1007/s11222-020-09932-y}
 }
 \seealso{
 \code{\link{kmeansbaryeps}} for a variant with epsilon relaxation that is typically faster
