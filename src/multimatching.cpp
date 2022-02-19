@@ -27,7 +27,7 @@ MultiMatching::MultiMatching(NumericVector zetax, NumericVector zetay, NumericMa
   profitvec(n), obj_to_pers(n),
   khappy(n), happyclusterx_kn(k,n), happyclustery_kn(k,n),
   navail(0), allxavail(n*k), allyavail(n*k),
-  sumttdistp(0.0), p(p), penp(pow(penalty,p)) {
+  sumttdistp(0.0), sumSigma(0.0), p(p), penp(pow(penalty,p)) {
 
   if (p != 2.0) {
     stop("Code currently only works for p=2");
@@ -98,18 +98,25 @@ double MultiMatching::getCost() {
   return(sumttdistp);
 }
 
+double MultiMatching::getSigma() {
+  return(sumSigma);
+}
+
 
 // optimize matchings with all data point pattern and update cluster information
 void MultiMatching::optimPerm() {
   NumericVector epsvec = prepare_epsvec(1e8, 1.0/(n+1), 10.0);  // 1.0 needed!
   NumericVector dist(k);
+  NumericVector sigma(k);
 
   for (int j = 0; j < k; j++) { // do columnwise ttdistp-optimal matching
     // Rcout << j << ", " << std::endl;
     dist(j) = doSingleMatch(j, epsvec);
+    sigma(j) = dist(j)*dist(j);
   }
 
   sumttdistp = sum(dist);
+  sumSigma = sum(sigma);
   return;
 }
 
@@ -119,12 +126,15 @@ void MultiMatching::optimPerm() {
 void MultiMatching::optimPerm(NumericVector epsvec) {
 
   NumericVector dist(k);
+  NumericVector sigma(k);
 
   for (int j = 0; j < k; j++) { // do columnwise ttdistp-optimal matching
     dist(j) = doSingleMatch(j, epsvec);
+    sigma(j) = dist(j)*dist(j);
   }
 
   sumttdistp = sum(dist);
+  sumSigma = sum(sigma);
   return;
 }
 

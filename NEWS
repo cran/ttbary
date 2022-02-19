@@ -1,6 +1,17 @@
 ----------------------------------------------------------------
 
-	CHANGES IN ttbary VERSION 0.2-0  (2021-03-17)
+  CHANGES IN ttbary VERSION 0.2-2  (2021-02-19)
+
+OVERVIEW
+
+    o  Necessary changes to make the package compatible with
+       spatstat 2.3 and later. This version will not work with
+       older versions of spatstat
+
+
+----------------------------------------------------------------
+
+  CHANGES IN ttbary VERSION 0.2-0  (2021-03-17)
 
 OVERVIEW
 
@@ -15,7 +26,7 @@ OVERVIEW
 
 OVERVIEW
 
-    o  Minor changes to user interface and documentation based 
+    o  Minor changes to user interface and documentation based
        on CRAN review
 
 

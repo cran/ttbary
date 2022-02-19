@@ -43,7 +43,7 @@ class MultiMatching {
     // not updated in optimAdd elsewhere (i.e. apart from removing the sampled), but miserable
     // points in perminfo are)
 
-  double sumttdistp;  // stores the current total cost of the matching
+  double sumttdistp, sumSigma;  // stores the current total cost of the matching and the squared cost
   const double p, penp;  // penp = penalty^p, currently p=2, but penalty is never needed directly
 
 
@@ -57,6 +57,7 @@ public:
 
   double cost();    // compute cost for current perm (perminfo not used!)
   double getCost(); // read cost from sumttdistp
+  double getSigma(); // read cost from sumSigma
 
   // The four main steps of the kmeansbary algorithm (Variant 1):
   void optimPerm();

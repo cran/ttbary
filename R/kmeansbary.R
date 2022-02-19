@@ -95,8 +95,8 @@ kmeansbary <- function(zeta, pplist, penalty, add_del = Inf,
     # this is in fact only to catch the Inf value (since it is an int in C++ not clear if
     # it would work with R_PosInf)
   res <- .Call(`_ttbary_kMeansBary`, zetax, zetay, ppmatx, ppmaty, penalty, add_del, N, eps, verbose)
-  win <- bounding.box.xy(c(superimpose(pplist)$x,res$baryx),c(superimpose(pplist)$y,res$baryy))
-  #
+  #win <- bounding.box.xy(c(superimpose(pplist)$x,res$baryx),c(superimpose(pplist)$y,res$baryy)) #does not work for duplicate patterns
+  win <- mkwin(pplist) #barycenter must lie inside, will not be included here
   #xwin <- c(min(win$xrange[1],0),max(win$xrange[2],1))
   #ywin <- c(min(win$yrange[1],0),max(win$yrange[2],1))
   #win <- owin(xwin,ywin)
@@ -108,7 +108,7 @@ kmeansbary <- function(zeta, pplist, penalty, add_del = Inf,
     message("NA in x-coords: ", paste(which(is.na(baryx)), collapse=" "))
     message("NA in y-coords: ", paste(which(is.na(baryy)), collapse=" "))
   }
-  return(list(cost=res$cost, barycenter=ppp(baryx, baryy, window=win), iterations=res$iterations))
+  return(list(cost=res$cost, sigma=res$sigma, barycenter=ppp(baryx, baryy, window=win), iterations=res$iterations))
 }
 
 #' Compute Pseudo-Barycenter of a List of Point Patterns (with epsilon-relaxation)
@@ -258,7 +258,7 @@ kmeansbaryeps <- function(epsvec, zeta, pplist, penalty, add_del = Inf, surplus 
     message("NA in x-coords: ", paste(which(is.na(baryx)), collapse=" "))
     message("NA in y-coords: ", paste(which(is.na(baryy)), collapse=" "))
   }
-  return(list(cost=res$cost, barycenter=ppp(baryx, baryy, window=win), iterations=res$iterations))
+  return(list(cost=res$cost,sigma=res$sigma, barycenter=ppp(baryx, baryy, window=win), iterations=res$iterations))
 }
 
 sampleFromDatapp <- function(n, pplist) {
@@ -380,6 +380,152 @@ kmeansbarynet <- function(dpath, zeta, ppmatrix, penalty,
   dpath <- rbind(dpath,rep(penalty,bign))
   dpath <- cbind(dpath,c(rep(penalty,bign),0))
   
+  res <- .Call(`_ttbary_kMeansBaryNet`, dpath, zeta, ppmat, penalty, add_del = 0, N, eps)
+  
+  zeta <- res$barycenter+1
+  order <- order(zeta) #virtual points at the end
+  zeta <- zeta[order]
+  perm <- res$perm+1
+  perm <- perm[order,]
+  nzeta <- length(zeta) - sum(zeta == bign+1) #right now obsolete, but if zetapoints change from real to virtual and back this is necessary
+  
+  zetacost <- NULL #clustercosts for every barycenterpoint
+  for (i in 1:length(zeta)) {
+    zetacost[i] <- sum(dpath[zeta[i],perm[i,]])
+  }
+  
+  zetalist <- vector("list",length(nzeta)) #alternative barycenterpoints for every non-virtual point
+  for (i in 1:nzeta) {
+    colsum <- rowSums(dpath[,perm[i,]])
+    zetalist[[i]] <- seq(1,length(dpath[1,]))[colsum == min(colsum)]
+  }
+  
+  
+  return(list("cost" = res$cost, "barycenter" = zeta, "zetalist" = zetalist, "barycost" = zetacost, "perm" = perm, "iterations" = res$iterations))
+}
+
+#' Compute weighted Pseudo-Barycenter of a List of Point Patterns on a Network
+#'
+#' Starting from an initial candidate point pattern \code{zeta}, use a k-means-like
+#' algorithm to compute a local minimum in the barycenter problem based on the TT-1 metric
+#' for a collection of point patterns on a network. The data needs to be in a special 
+#' form which can be produced with the function \code{\link{netsplit}}.
+#'
+#' @param dpath a square matrix whose (\code{i},\code{j})th entry is the shortest-path distance between vertex \code{i}
+#'              and vertex \code{j}. Vertex means either network vertex or data point.
+#' @param zeta a vector containing the vertex-indices of the initial candidate for the barycenter.
+#' @param ppmatrix a matrix specifying in its columns the vertex-indices of the different data point patterns. A virtual
+#'           index that is one greater than the maximum vertex-index can be used to fill up columns so they all have
+#'           the same length (see examples).
+#' @param weights a vector with weights for each point pattern
+#' @param penalty the penalty for adding/deleting points when computing TT-1 distances.
+#' @param N the maximum number of iterations.
+#' @param eps the algorithm stops if the relative improvement of the objective function between two iterations is less
+#'          than eps.
+#'
+#' @details  Given \eqn{k} planar point patterns \eqn{\xi_1, \ldots, \xi_k}{xi_1, ..., xi_k} (specified by giving the indices
+#'           of their points in the \eqn{k} columns of \code{ppmatrix}), this function finds a local minimizer \eqn{\zeta^*}{zeta*} of
+#'           \deqn{\sum_{j=1}^k \tau_1(\xi_j, \zeta),}{sum_{j=1}^k tau_1(xi_j, zeta),}
+#'           where \eqn{\tau_1}{tau_1} denotes the TT-1 metric based on the shortest-path metric between points in the network.
+#'           
+#'           Starting from an initial candidate point pattern \code{zeta} (specified by giving the indices
+#'           of its points), the algorithm alternates between assigning a point from each pattern \eqn{\xi_j}{xi_j}
+#'           to each point of the candidate and computing new candidate patterns by shifting points (addition and deletion
+#'           of points is currently not implemented).
+#'           A detailed description of the algorithm is given in Müller, Schuhmacher and Mateu (2019).
+#'                      
+#'           The most convenient way to obtain objects \code{dpath} and \code{ppmatrix} of the right form is by calling
+#'           \code{\link{netsplit}} and extracting components \code{network$dpath} and \code{ppmatrix} from the resulting
+#'           object (see examples below). 
+#'
+#' @return A list containing the following components:
+#'         \item{cost}{the sum of TT-1 distances between the computed pseudo-barycenter and the point patterns.}
+#'         \item{barycenter}{the pseudo-barycenter as a vector of vertex-indices.}
+#'         \item{zetalist}{a list containing the alternative vertex-indices for each point of the pseudo-barycenter.}
+#'         \item{barycost}{a vector containing the cluster costs for each point of the pseudo-barycenter 
+#'         (the alternative indices in \code{zetalist} lead to the same cluster cost).} 
+#'         \item{perm}{the permutation matrix for the clusters.}
+#'         \item{iterations}{the number of iterations required until convergence.}
+#'
+#' @references Raoul Müller, Dominic Schuhmacher and Jorge Mateu (2020).\cr
+#'             Metrics and Barycenters for Point Pattern Data.\cr
+#'             Statistics and Computing 30, 953-972.\cr
+#'             \doi{10.1007/s11222-020-09932-y}
+#'
+#' @author Raoul Müller  \email{raoul.mueller@uni-goettingen.de}\cr
+#'         Dominic Schuhmacher \email{schuhmacher@math.uni-goettingen.de}
+#'
+#' @examples 
+#' set.seed(123456)
+#' nvert <- 100 #number of vertices in the network
+#' npp <- 5 #number of data point patterns
+#' npts <- 40 #number of points per data point pattern
+#' ln <- delaunayNetwork(runifpoint(nvert)) #create an artificial network
+#' ppnetwork <- runiflpp(npts,ln,nsim = npp)
+#'   #simulate npp point patterns with npts points each
+#' 
+#' plot(ppnetwork[[1]]$domain, cex=0.5, main="")
+#' for (i in 1:npp) {
+#'   plot(as.ppp(ppnetwork[[i]]),vpch=1,col=i,add=TRUE)
+#'      #plotting the point patterns in different colors
+#' }
+#' 
+#' res <- netsplit(ln, ppnetwork)
+#'   #incorporate data point patterns into the network
+#'   #calculating all pairwise distances between vertices
+#'   #and creating matrix of vertex-indices of data point patterns
+#'   
+#' zeta <- sample(res$nvirtual - 1, median(res$dimensions))
+#'   #sample random vertex-indices in the network
+#'   #taking as cardinality the median of point pattern cardinalities
+#' 
+#' res2 <- kmeansbaryweightnet(res$network$dpath, zeta, res$ppmatrix, 
+#'                             weights = c(1,2,3,2,1), penalty = 0.1)
+#' 
+#' barycenter <- ppp(res$network$vertices$x[res2$barycenter], res$network$vertices$y[res2$barycenter])
+#'   #construct the barycenter pattern based on the index information in res2
+#' points(barycenter,cex = 1.2, lwd = 2, pch = 4, col = "magenta")
+#'   #add the computed barycenter as magenta crosses
+#' 
+#' res2$cost
+#' #[1] 18.35171
+#' sumppdistnet(res$network$dpath, res2$barycenter, res$ppmatrix, penalty=0.1, type="tt", p=1, q=1)
+#' #[1] 18.35171
+#' #attr(,"distances")
+#' #[1] 3.666471 3.774709 3.950079 3.841166 3.119284
+#'
+#' @seealso \code{\link{kmeansbary}} for a similar function for point patterns in \eqn{R^2}
+#'
+#' @export
+#'
+kmeansbaryweightnet <- function(dpath, zeta, ppmatrix, weights, penalty, 
+                          N = 200L, eps = 0.005) {
+  nzeta <- length(zeta)
+  nppmat <- dim(ppmatrix)[1]
+  n <- max(nzeta,nppmat)
+  k <- dim(ppmatrix)[2]
+  bign <- length(dpath[1,])
+  
+  stopifnot(is.vector(weights))
+  stopifnot(length(weights)==k)
+  
+  weights <- weights/(sum(weights))
+  
+  zeta <- c(zeta, rep(bign+1, n-nzeta))
+  ppmat <- rbind(ppmatrix, matrix(bign+1, n-nppmat, k))
+
+  dpath[dpath > 2*penalty] <- 2*penalty
+  dpath <- rbind(dpath,rep(penalty,bign))
+  dpath <- cbind(dpath,c(rep(penalty,bign),0))
+  
+  for (i in 1:k) {
+    dpath[,ppmat[,i]] <- dpath[,ppmat[,i]] * weights[i] #distances to point pattern i
+    #dpath[ppmat[,i],] <- dpath[ppmat[,i],] * weights[i] #distances from point pattern i
+  }
+  
+  zeta <- zeta-1 #indices now match the column/row indices in cpp
+  ppmat <- ppmat-1 
+    
   res <- .Call(`_ttbary_kMeansBaryNet`, dpath, zeta, ppmat, penalty, add_del = 0, N, eps)
   
   zeta <- res$barycenter+1
@@ -529,4 +675,15 @@ kmeansbaryeps_mat <- function(epsvec, zetax, zetay, ppmatx, ppmaty, penalty,
   if (add_del > .Machine$integer.max) add_del <- .Machine$integer.max
   
   .Call(`_ttbary_kMeansBaryEps`, epsvec, zetax, zetay, ppmatx, ppmaty, penalty, add_del, c(20,1,1,1), N, eps, verbose)
+}
+
+#returns a list of x (resp y) values of a list of point patterns
+getx <- function(pattern){return(pattern$x)}
+gety <- function(pattern){return(pattern$y)}
+
+#same as bounding box, but works with duplicates
+mkwin <- function(group){
+  xvec <- unlist(sapply(group, getx))
+  yvec <- unlist(sapply(group, gety))
+  return(owin(c(min(xvec),max(xvec)),c(min(yvec),max(yvec))))
 }

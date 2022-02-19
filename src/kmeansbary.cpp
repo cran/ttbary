@@ -139,7 +139,11 @@ List kMeansBary(NumericVector zetax, NumericVector zetay, NumericMatrix ppmatx,
     Rcout << std::endl;
   }
 
-  List res = List::create(Named("cost") = sumttdistp_new, _["barycenterx"] = zetax_out, _["barycentery"] = zetay_out, _["iterations"] = it);
+  //return sum of fourth power of distances between barycenter and every pattern
+  double sumSigma = mm.getSigma();
+
+
+  List res = List::create(Named("cost") = sumttdistp_new, _["sigma"] = sumSigma, _["barycenterx"] = zetax_out, _["barycentery"] = zetay_out, _["iterations"] = it);
   return res;
 }
 
@@ -326,8 +330,11 @@ List kMeansBaryEps(NumericVector epsvec, NumericVector zetax, NumericVector zeta
     Rcout << std::endl;
   }
 
+  //return sum of fourth power of distances between barycenter and every pattern
+  double sumSigma = mm.getSigma();
+
   it -= extraround;
 
-  List res = List::create(Named("cost") = sumttdistp_new, _["barycenterx"] = zetax_out, _["barycentery"] = zetay_out, _["iterations"] = it);
+  List res = List::create(Named("cost") = sumttdistp_new, _["sigma"] = sumSigma, _["barycenterx"] = zetax_out, _["barycentery"] = zetay_out, _["iterations"] = it);
   return res;
 }

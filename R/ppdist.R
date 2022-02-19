@@ -63,8 +63,8 @@
 #'   # small example
 #'   # -------------
 #'   set.seed(181230)
-#'   xi <- spatstat.core::rpoispp(20)
-#'   eta <- spatstat.core::rpoispp(20)
+#'   xi <- spatstat.random::rpoispp(20)
+#'   eta <- spatstat.random::rpoispp(20)
 #'   dmat <- spatstat.geom::crossdist(xi,eta)
 #'   res <- ppdist(dmat, penalty=1,  type="rtt", ret_matching=TRUE, p=1)
 #'   plotmatch(xi, eta, dmat, res, penalty=1, p=1)
@@ -94,8 +94,8 @@
 #'   # a larger example
 #'   # --------------------------------------------------------------- 
 #'   set.seed(190203)
-#'   xi <- spatstat.core::rpoispp(2000)
-#'   eta <- spatstat.core::rpoispp(2000)
+#'   xi <- spatstat.random::rpoispp(2000)
+#'   eta <- spatstat.random::rpoispp(2000)
 #'   dmat <- spatstat.geom::crossdist(xi,eta)
 #'   res <- ppdist(dmat, penalty = 0.1,  type = "rtt", ret_matching = TRUE, p = 1)
 #'   res$dist

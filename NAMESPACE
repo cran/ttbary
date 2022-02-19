@@ -1,4 +1,4 @@
-import(spatstat.geom,spatstat.core,spatstat.linnet,spatstat)
+import(spatstat.geom, spatstat.core, spatstat.random, spatstat.linnet, spatstat)
 
 importFrom("grDevices", "grey")
 importFrom("graphics", "arrows", "par", "plot", "segments")
@@ -10,6 +10,7 @@ useDynLib(ttbary, .registration = TRUE)
 export("kmeansbary",
        "kmeansbaryeps",
        "kmeansbarynet",
+       "kmeansbaryweightnet",
        "netsplit",
        "plotmatch",
        "ppdist",

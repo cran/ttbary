@@ -5,6 +5,11 @@
 
 using namespace Rcpp;
 
+#ifdef RCPP_USE_GLOBAL_ROSTREAM
+Rcpp::Rostream<true>&  Rcpp::Rcout = Rcpp::Rcpp_cout_get();
+Rcpp::Rostream<false>& Rcpp::Rcerr = Rcpp::Rcpp_cerr_get();
+#endif
+
 // auctionbf2cpp
 List auctionbf2cpp(IntegerMatrix d, int n, IntegerVector pers_to_obj, IntegerVector obj_to_pers, NumericVector price, NumericVector profit, int neps, NumericVector epsvec);
 RcppExport SEXP _ttbary_auctionbf2cpp(SEXP dSEXP, SEXP nSEXP, SEXP pers_to_objSEXP, SEXP obj_to_persSEXP, SEXP priceSEXP, SEXP profitSEXP, SEXP nepsSEXP, SEXP epsvecSEXP) {
