@@ -45,12 +45,13 @@ class MultiMatching {
 
   double sumttdistp, sumSigma;  // stores the current total cost of the matching and the squared cost
   const double p, penp;  // penp = penalty^p, currently p=2, but penalty is never needed directly
+  const bool exact; //this decides if the barycenter of a clsuter of points is calculated exactly by Algorithm1 of Drezner1991, or if it is an approximate, i.e. the mean of happy points.
 
 
 public:
   // MultiMatching() {}; problematic because of the const members that have to be defined then
   MultiMatching(NumericVector zetax, NumericVector zetay, NumericMatrix ppmatx, NumericMatrix ppmaty,
-                double penalty, double p);
+                double penalty, double p, bool exact);
 
   void printAll();
   void printSome();

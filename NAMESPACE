@@ -16,4 +16,6 @@ export("kmeansbary",
        "ppdist",
        "ppdistnet",
        "sumppdist",
-       "sumppdistnet")
+       "sumppdistnet",
+       "drezner"
+       )

@@ -16,6 +16,10 @@
 #' @param N the maximum number of iterations.
 #' @param eps the algorithm stops if the relative improvement of the objective function between two
 #'          iterations is less than eps.
+#' @param exact logical. Shall the barycenter of a cluster be calculated exactly by Algorithm 1
+#'          of Drezner, Mehrez and Wesolowsky (1991)? In our experience setting \code{exact=TRUE}
+#'          yields no systematic improvement of the overall objective function value, while the
+#'          computation times are substantially larger.
 #' @param verbose the verbosity level. One of 0, 1, 2, 3, where 0 means silent and 3 means full details.
 #'
 #'
@@ -27,7 +31,7 @@
 #'           Starting from an initial candidate point pattern \code{zeta}, the algorithm alternates
 #'           between assigning a point from each pattern \eqn{\xi_j}{xi_j} to each point of the candidate
 #'           and computing new candidate patterns by shifting, adding and deleting points.
-#'           A detailed description of the algorithm is given in Müller, Schuhmacher and Mateu (2019).
+#'           A detailed description of the algorithm is given in Müller, Schuhmacher and Mateu (2020).
 #'           
 #'           For first-time users it is recommended to keep the default values and set \code{penalty}
 #'           to a noticeable fraction of the diameter of the observation window, e.g. between
@@ -38,8 +42,12 @@
 #'         \item{barycenter}{the pseudo-barycenter as a \code{ppp}-object.}
 #'         \item{iterations}{the number of iterations required until convergence.}
 #'
-#' @references Raoul Müller, Dominic Schuhmacher and Jorge Mateu (2020).\cr
-#'             Metrics and Barycenters for Point Pattern Data.\cr
+#' @references Zvi Drezner, Avram Mehrez and George O. Wesolowsky (1991).\cr
+#'             The facility location problem with limited distances.\cr
+#'             Transportation Science 25.3 (1991): 183-187.\cr
+#'             www.jstor.org/stable/25768490\cr
+#'             \cr
+#'             Raoul Müller, Dominic Schuhmacher and Jorge Mateu (2020).\cr
 #'             Statistics and Computing 30, 953-972.\cr
 #'             \doi{10.1007/s11222-020-09932-y}
 #'
@@ -71,7 +79,7 @@
 #' @export
 #'
 kmeansbary <- function(zeta, pplist, penalty, add_del = Inf,
-                       surplus = 0, N = 200L, eps = 0.005, verbose = 0) {
+                       surplus = 0, N = 200L, eps = 0.005, exact = FALSE, verbose = 0) {
   stopifnot(class(zeta) == "ppp")
   stopifnot(any(class(pplist) == "list"))
   stopifnot(all(sapply(pplist, function(x) {class(x) == "ppp"})))
@@ -94,7 +102,7 @@ kmeansbary <- function(zeta, pplist, penalty, add_del = Inf,
   if (add_del > .Machine$integer.max) add_del <- .Machine$integer.max
     # this is in fact only to catch the Inf value (since it is an int in C++ not clear if
     # it would work with R_PosInf)
-  res <- .Call(`_ttbary_kMeansBary`, zetax, zetay, ppmatx, ppmaty, penalty, add_del, N, eps, verbose)
+  res <- .Call(`_ttbary_kMeansBary`, zetax, zetay, ppmatx, ppmaty, penalty, add_del, N, eps, exact, verbose)
   #win <- bounding.box.xy(c(superimpose(pplist)$x,res$baryx),c(superimpose(pplist)$y,res$baryy)) #does not work for duplicate patterns
   win <- mkwin(pplist) #barycenter must lie inside, will not be included here
   #xwin <- c(min(win$xrange[1],0),max(win$xrange[2],1))
@@ -135,6 +143,10 @@ kmeansbary <- function(zeta, pplist, penalty, add_del = Inf,
 #' @param N the maximum number of iterations.
 #' @param eps the algorithm stops if the relative improvement of the objective function between two iterations is less
 #'          than eps.
+#' @param exact logical. Shall the barycenter of a cluster be calculated exactly by Algorithm 1
+#'          of Drezner, Mehrez and Wesolowsky (1991)? In our experience setting \code{exact=TRUE}
+#'          yields no systematic improvement of the overall objective function value, while the
+#'          computation times are substantially larger.
 #' @param verbose the verbosity level. One of 0, 1, 2, 3, where 0 means silent and 3 means full details.
 #'
 #'
@@ -146,7 +158,7 @@ kmeansbary <- function(zeta, pplist, penalty, add_del = Inf,
 #'           Starting from an initial candidate point pattern \code{zeta}, the algorithm alternates
 #'           between assigning a point from each pattern \eqn{\xi_j}{xi_j} to each point of the candidate
 #'           and computing new candidate patterns by shifting, adding and deleting points.
-#'           A detailed description of the algorithm is given in Müller, Schuhmacher and Mateu (2019).
+#'           A detailed description of the algorithm is given in Müller, Schuhmacher and Mateu (2020).
 #'           
 #'           For first-time users it is recommended to keep the default values and set \code{penalty}
 #'           to a noticeable fraction of the diameter of the observation window, e.g. between
@@ -217,7 +229,7 @@ kmeansbary <- function(zeta, pplist, penalty, add_del = Inf,
 #' @export
 #'
 kmeansbaryeps <- function(epsvec, zeta, pplist, penalty, add_del = Inf, surplus = 0,
-                          relaxVec = c(20,1,1,1), N = 200L, eps = 0.005, verbose = 0) {
+                          relaxVec = c(20,1,1,1), N = 200L, eps = 0.005, exact=FALSE, verbose = 0) {
   stopifnot(class(zeta) == "ppp")
   stopifnot(any(class(pplist) == "list"))
   stopifnot(all(sapply(pplist, function(x) {class(x) == "ppp"})))
@@ -248,7 +260,7 @@ kmeansbaryeps <- function(epsvec, zeta, pplist, penalty, add_del = Inf, surplus 
   if (add_del > .Machine$integer.max) add_del <- .Machine$integer.max
   # this is in fact only to catch the Inf value (since it is an int in C++ not clear if
   # it would work with R_PosInf)
-  res <- .Call(`_ttbary_kMeansBaryEps`, epsvec, zetax, zetay, ppmatx, ppmaty, penalty, add_del, relaxVec, N, eps, verbose)
+  res <- .Call(`_ttbary_kMeansBaryEps`, epsvec, zetax, zetay, ppmatx, ppmaty, penalty, add_del, relaxVec, N, eps, exact, verbose)
   win <- bounding.box.xy(c(superimpose(pplist)$x,res$baryx),c(superimpose(pplist)$y,res$baryy))
   
   baryx <- na.omit(res$barycenterx)
@@ -312,10 +324,9 @@ sampleFromDatapp <- function(n, pplist) {
 #'         \item{perm}{the permutation matrix for the clusters.}
 #'         \item{iterations}{the number of iterations required until convergence.}
 #'
-#' @references Raoul Müller, Dominic Schuhmacher and Jorge Mateu (2020).\cr
+#' @references Raoul Müller, Dominic Schuhmacher and Jorge Mateu (2019).\cr
 #'             Metrics and Barycenters for Point Pattern Data.\cr
-#'             Statistics and Computing 30, 953-972.\cr
-#'             \doi{10.1007/s11222-020-09932-y}
+#'             Preprint \href{https://arxiv.org/abs/1909.07266}{arXiv:1909.07266}
 #'
 #' @author Raoul Müller  \email{raoul.mueller@uni-goettingen.de}\cr
 #'         Dominic Schuhmacher \email{schuhmacher@math.uni-goettingen.de}
@@ -447,10 +458,9 @@ kmeansbarynet <- function(dpath, zeta, ppmatrix, penalty,
 #'         \item{perm}{the permutation matrix for the clusters.}
 #'         \item{iterations}{the number of iterations required until convergence.}
 #'
-#' @references Raoul Müller, Dominic Schuhmacher and Jorge Mateu (2020).\cr
+#' @references Raoul Müller, Dominic Schuhmacher and Jorge Mateu (2019).\cr
 #'             Metrics and Barycenters for Point Pattern Data.\cr
-#'             Statistics and Computing 30, 953-972.\cr
-#'             \doi{10.1007/s11222-020-09932-y}
+#'             Preprint \href{https://arxiv.org/abs/1909.07266}{arXiv:1909.07266}
 #'
 #' @author Raoul Müller  \email{raoul.mueller@uni-goettingen.de}\cr
 #'         Dominic Schuhmacher \email{schuhmacher@math.uni-goettingen.de}
@@ -637,45 +647,48 @@ netsplit <- function(network, pplist){
   return(list("network" = newnetwork, "ppmatrix" = ppmatrix, "dimensions" = dims ,"nvirtual" = virtualvertex))
 }
 
-kmeansbary_mat <- function(zetax, zetay, ppmatx, ppmaty, penalty,
-                           add_del = Inf, surplus = 0, N = 200L, eps = 0.005, verbose = 0) {
-  nzeta <- length(zetax)
-  stopifnot(nzeta == length(zetay))
-  nppmatx <- dim(ppmatx)[1]
-  stopifnot(nppmatx == dim(ppmaty)[1])
-  n <- max(nzeta,nppmatx)
-  k <- dim(ppmatx)[2]
-  stopifnot(k == dim(ppmaty)[2])
-  
-  zetax <- c(zetax, rep(NA, n-nzeta+surplus))
-  zetay <- c(zetay, rep(NA, n-nzeta+surplus))
-  ppmatx <- rbind(ppmatx, matrix(NA, n-nppmatx+surplus, k))
-  ppmaty <- rbind(ppmaty, matrix(NA, n-nppmatx+surplus, k))
-  
-  if (add_del > .Machine$integer.max) add_del <- .Machine$integer.max
-  
-  .Call(`_ttbary_kMeansBary`, zetax, zetay, ppmatx, ppmaty, penalty, add_del, N, eps, verbose)
-}
+# the following function is deprecated (it was only ever intended for private use): 
+# kmeansbary_mat <- function(zetax, zetay, ppmatx, ppmaty, penalty,
+#                            add_del = Inf, surplus = 0, N = 200L, eps = 0.005, verbose = 0) {
+#   nzeta <- length(zetax)
+#   stopifnot(nzeta == length(zetay))
+#   nppmatx <- dim(ppmatx)[1]
+#   stopifnot(nppmatx == dim(ppmaty)[1])
+#   n <- max(nzeta,nppmatx)
+#   k <- dim(ppmatx)[2]
+#   stopifnot(k == dim(ppmaty)[2])
+#   
+#   zetax <- c(zetax, rep(NA, n-nzeta+surplus))
+#   zetay <- c(zetay, rep(NA, n-nzeta+surplus))
+#   ppmatx <- rbind(ppmatx, matrix(NA, n-nppmatx+surplus, k))
+#   ppmaty <- rbind(ppmaty, matrix(NA, n-nppmatx+surplus, k))
+#   
+#   if (add_del > .Machine$integer.max) add_del <- .Machine$integer.max
+#   
+#   .Call(`_ttbary_kMeansBary`, zetax, zetay, ppmatx, ppmaty, penalty, add_del, N, eps, exact=FALSE, verbose)
+# }
 
-kmeansbaryeps_mat <- function(epsvec, zetax, zetay, ppmatx, ppmaty, penalty,
-                              add_del = Inf, surplus = 0, N = 200L, eps = 0.005, verbose = 0) {
-  nzeta <- length(zetax)
-  stopifnot(nzeta == length(zetay))
-  nppmatx <- dim(ppmatx)[1]
-  stopifnot(nppmatx == dim(ppmaty)[1])
-  n <- max(nzeta,nppmatx)
-  k <- dim(ppmatx)[2]
-  stopifnot(k == dim(ppmaty)[2])
-  
-  zetax <- c(zetax, rep(NA, n-nzeta+surplus))
-  zetay <- c(zetay, rep(NA, n-nzeta+surplus))
-  ppmatx <- rbind(ppmatx, matrix(NA, n-nppmatx+surplus, k))
-  ppmaty <- rbind(ppmaty, matrix(NA, n-nppmatx+surplus, k))
-  
-  if (add_del > .Machine$integer.max) add_del <- .Machine$integer.max
-  
-  .Call(`_ttbary_kMeansBaryEps`, epsvec, zetax, zetay, ppmatx, ppmaty, penalty, add_del, c(20,1,1,1), N, eps, verbose)
-}
+# the following function is deprecated (it was only ever intended for private use): 
+# kmeansbaryeps_mat <- function(epsvec, zetax, zetay, ppmatx, ppmaty, penalty,
+#                               add_del = Inf, surplus = 0, N = 200L, eps = 0.005, verbose = 0) {
+#   nzeta <- length(zetax)
+#   stopifnot(nzeta == length(zetay))
+#   nppmatx <- dim(ppmatx)[1]
+#   stopifnot(nppmatx == dim(ppmaty)[1])
+#   n <- max(nzeta,nppmatx)
+#   k <- dim(ppmatx)[2]
+#   stopifnot(k == dim(ppmaty)[2])
+#   
+#   zetax <- c(zetax, rep(NA, n-nzeta+surplus))
+#   zetay <- c(zetay, rep(NA, n-nzeta+surplus))
+#   ppmatx <- rbind(ppmatx, matrix(NA, n-nppmatx+surplus, k))
+#   ppmaty <- rbind(ppmaty, matrix(NA, n-nppmatx+surplus, k))
+#   
+#   if (add_del > .Machine$integer.max) add_del <- .Machine$integer.max
+#   
+#   .Call(`_ttbary_kMeansBaryEps`, epsvec, zetax, zetay, ppmatx, ppmaty, penalty, add_del, c(20,1,1,1), N, eps, exact=FALSE, verbose)
+# }
+
 
 #returns a list of x (resp y) values of a list of point patterns
 getx <- function(pattern){return(pattern$x)}
@@ -686,4 +699,76 @@ mkwin <- function(group){
   xvec <- unlist(sapply(group, getx))
   yvec <- unlist(sapply(group, gety))
   return(owin(c(min(xvec),max(xvec)),c(min(yvec),max(yvec))))
+}
+
+#' Run an Improved Version of the Algorithm by Drezner, Mehrez and Wesolowsky for Finding Barycenters
+#' Based on Limited Distances
+#'
+#' Find a barycenter of a 2-d point cloud based on minimizing the \eqn{p}-th power of the Euclidean 
+#' distance, cut off at \eqn{C=2*\code{penalty}^p}. In addition to using a pre-screening procedure to further
+#' alleviate the computational burden of the original algorithm, an option may be specified 
+#' to allow the algorithm to return \code{NA} if no location in 2-d space is "good enough".
+#' 
+#' @param clusterx,clustery vectors of x- and y-coordinates for the point cloud.
+#' @param penalty the \eqn{p}-th power of the Euclidean distance is cut off at \eqn{2 \cdot \code{penalty}^p}{2*\code{penalty}^p}. 
+#'        To cut off at \eqn{C}, set \eqn{\code{penalty} = (C/2)^{1/p}}.
+#' @param p the exponent for the distances and cutoffs. \emph{Currently only implemented for \code{p=2}.}
+#' @param reduction logical. Shall the pre-screening procedure be applied?
+#' @param aleph logical. Shall the returned value be \code{NA} if no good barycenter can be found?
+##'
+#' @details             
+#'           For points \eqn{z_1,\ldots,z_n}{z_1,...,z_n} with \eqn{x}-coordinates \code{clusterx} and 
+#'           \eqn{y}-coordinates \code{clustery} find a minimizer \eqn{b^*}{b*} (barycenter) of
+#'           \deqn{\gamma(b) = \sum_{i=1}^n \min\{\|z_i-b\|^p, C\}}{\gamma(b) = \sum_{i=1}^n \min\{\|z_i-b\|^p, C\}}
+#'           or return \code{NA} if \eqn{\gamma(b) > \frac{n}{2}C}{\gamma(b) > (n/2)*C} for all \eqn{b \in \mathbf{R}^2}{b in R^2}.
+#'           
+#'           The original algorithm is due to Drezner, Mehrez and Wesolowsky (1991). The improvements are from
+#'           Müller, Schöbel and Schuhmacher (2022).
+#'           
+#' @return A list containing the following components:
+#'         \item{barycenterx,barycentery}{the \eqn{x}- and \eqn{y}-coordinates of the barycenter \eqn{b^*}{b*}
+#'         that was found. May both be \code{NA} if option \code{aleph=TRUE} and no actual barycenter is good
+#'         enough.}
+#'         \item{cost}{the total cost \eqn{\gamma(b^*)}{gamma(b^*)} of the barycenter .}
+#'         \item{calculations}{If \code{reduction=FALSE}, the number of point pairs from which the barycenter candidates are calculated. 
+#'         Each point pair yields eight candidates.} 
+#'         \item{skipped}{If \code{reduction=TRUE}, the number of skipped point pairs
+#'         due to the pre-screening procedure.} 
+#'
+#' @references Zvi Drezner, Avram Mehrez and George O. Wesolowsky (1991).\cr
+#'             The facility location problem with limited distances.\cr
+#'             Transportation Science 25.3 (1991): 183-187.\cr
+#'             www.jstor.org/stable/25768490\cr
+#'             \cr
+#'             Raoul Müller, Anita Schöbel and Dominic Schuhmacher (2022).\cr
+#'             Location problems with cutoff.\cr
+#'             Preprint \href{https://arxiv.org/abs/2203.00910}{arXiv:2203.00910}
+#'
+#' @author Raoul Müller  \email{raoul.mueller@uni-goettingen.de}
+#'
+#' @examples 
+#'   x <- rnorm(20)
+#'   y <- rnorm(20)
+#'   plot(x, y, asp=1)
+#'   res <- drezner(x, y, 2)
+#'   points(res$barycenterx, res$barycentery, col=2)
+#'   res <- drezner(x, y, 0.5)
+#'   points(res$barycenterx, res$barycentery, col=4)
+#'
+#' @export
+#'
+drezner <- function(clusterx, clustery, penalty, p=2, reduction=TRUE, aleph=FALSE){
+  if (p != 2) {
+    stop("This function is currently only implemented for p=2.")
+  }
+  penp <- penalty**p
+  res <- .Call('_ttbary_DreznerEuclid2', clusterx, clustery, penp, reduction, aleph)
+  return(res)
+}
+
+#iterated cluster heuristic of MSM2020
+clusterheuristic <- function(clusterx,clustery, x, y, penalty, p=2, bounds = FALSE){
+  penp <- penalty**p
+  res <- .Call('_ttbary_heuristicCenter2', clusterx, clustery, x, y, penp, bounds)
+  return(res)
 }

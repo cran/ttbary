@@ -76,6 +76,38 @@ NumericMatrix cross_dprime2(NumericVector xix, NumericVector xiy,
   return res;
 }
 
+// compute dprime crossdist to the p-th power for a pattern to itself
+NumericMatrix cross_dprime2(NumericVector xix, NumericVector xiy, double penp) {
+  int n = xix.length();
+  // double penp = pow(penalty,p);
+  NumericMatrix res(n,n);
+  
+  // j first since NumericMatrix is col major
+  for (int j = 0; j < (n-1); j++) {
+    for (int i = (j+1); i < n; i++) {
+      res(i,j) = dprime2(xix[i], xiy[i], xix[j], xiy[j], penp);
+      res(j,i) = res(i,j);
+    }
+  }
+  return res;
+}
+
+// compute dprime crossdist to the p-th power for a pattern to itself
+NumericMatrix cross_dmat(NumericVector xix, NumericVector xiy) {
+  int n = xix.length();
+  // double penp = pow(penalty,p);
+  NumericMatrix res(n,n);
+  
+  // j first since NumericMatrix is col major
+  for (int j = 0; j < (n-1); j++) {
+    for (int i = (j+1); i < n; i++) {
+      res(i,j) = (xix[i] - xix[j]) * (xix[i] - xix[j]) + (xiy[i] - xiy[j]) * (xiy[i] - xiy[j]);
+      res(j,i) = res(i,j);
+    }
+  }
+  return res;
+}
+
 
 IntegerVector closest_dprime2(double x, double y, NumericVector ppx, NumericVector ppy, double penp) {
   int ind = -1;

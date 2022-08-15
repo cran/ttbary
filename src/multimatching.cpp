@@ -18,7 +18,7 @@ using namespace Rcpp;
 
 // constructor
 MultiMatching::MultiMatching(NumericVector zetax, NumericVector zetay, NumericMatrix ppmatx, NumericMatrix ppmaty,
-                             double penalty, double p) :
+                             double penalty, double p, bool exact) :
   n(zetax.length()), k(ppmatx.ncol()),
   zetax(zetax), zetay(zetay), isvirtual(is_na(zetax)), nvirtual(sum(isvirtual)),
   ppmatx(ppmatx), ppmaty(ppmaty),
@@ -27,7 +27,8 @@ MultiMatching::MultiMatching(NumericVector zetax, NumericVector zetay, NumericMa
   profitvec(n), obj_to_pers(n),
   khappy(n), happyclusterx_kn(k,n), happyclustery_kn(k,n),
   navail(0), allxavail(n*k), allyavail(n*k),
-  sumttdistp(0.0), sumSigma(0.0), p(p), penp(pow(penalty,p)) {
+  sumttdistp(0.0), sumSigma(0.0), p(p), penp(pow(penalty,p)),
+  exact(exact) {
 
   if (p != 2.0) {
     stop("Code currently only works for p=2");
@@ -147,28 +148,53 @@ void MultiMatching::optimBary() {
 
   for (int i = 0; i < n; i++) {
     if (!isvirtual(i)) {
-      if (khappy(i) > 0) {  // otherwise point is deleted in optimDelete/checkDeletePoint
-                            // anyway (no need to repeat the cleanup code here)
-                            // if (2*khappy(i) <= k) might also be an option ...
-                            // ("small" suboptimality, saves us from updating updating Happy again)
-        NumericVector clustx = happyclusterx_kn(_,i);
-        NumericVector clusty = happyclustery_kn(_,i);
-        optimClusterCenterEuclid2(clustx[seq(0, khappy(i)-1)], clusty[seq(0, khappy(i)-1)], zetax(i), zetay(i));
+      if (exact){
+        NumericVector clustx(k);
+        NumericVector clusty(k);
+        for (int j = 0; j < k; j++)
+        {
+          clustx[j] = ppmatx(perm(i,j),j);
+          clusty[j] = ppmaty(perm(i,j),j);
+        }
+        exactClusterCenterEuclid2(clustx, clusty, zetax(i), zetay(i),penp);
 
         // update perminfo for subsequent updateHappyClusterInfo (in optimDelete)
-        for (int j = 0; j < k; j++) {
-          if (perminfo(i,j) != 0) {  // zero stays zero and does not contribute to anything happy
-            if (dprime2(zetax(i), zetay(i), ppmatx(perm(i,j),j),
-                        ppmaty(perm(i,j),j), penp) == 2*penp) {
-                // is the new center beyond maximal distance?
-              perminfo(i,j) = -1;
-            } else {
-              perminfo(i,j) = 1;
+          for (int j = 0; j < k; j++) {
+            if (perminfo(i,j) != 0) {  // zero stays zero and does not contribute to anything happy
+              if (dprime2(zetax(i), zetay(i), ppmatx(perm(i,j),j),
+                          ppmaty(perm(i,j),j), penp) == 2*penp) {
+                  // is the new center beyond maximal distance?
+                perminfo(i,j) = -1;
+              } else {
+                perminfo(i,j) = 1;
+              }
             }
-          }
-        }  // for j
+          }  // for j 
+      } // if(exact)
+      else{
+        if (khappy(i) > 0) {  // otherwise point is deleted in optimDelete/checkDeletePoint
+                              // anyway (no need to repeat the cleanup code here)
+                              // if (2*khappy(i) <= k) might also be an option ...
+                              // ("small" suboptimality, saves us from updating updating Happy again)
+          NumericVector clustx = happyclusterx_kn(_,i);
+          NumericVector clusty = happyclustery_kn(_,i);
+          optimClusterCenterEuclid2(clustx[seq(0, khappy(i)-1)], clusty[seq(0, khappy(i)-1)], zetax(i), zetay(i));
+          
+          // update perminfo for subsequent updateHappyClusterInfo (in optimDelete)
+          for (int j = 0; j < k; j++) {
+            if (perminfo(i,j) != 0) {  // zero stays zero and does not contribute to anything happy
+              if (dprime2(zetax(i), zetay(i), ppmatx(perm(i,j),j),
+                          ppmaty(perm(i,j),j), penp) == 2*penp) {
+                  // is the new center beyond maximal distance?
+                perminfo(i,j) = -1;
+              } else {
+                perminfo(i,j) = 1;
+              }
+            }
+          }  // for j
+        }  // if (khappy(i) > 0)
 
-      }  // if (khappy(i) > 0)
+      } // if(!exact) 
     }  // if (!isvirtual(i)) {
   }  // for i
 
@@ -565,7 +591,13 @@ bool MultiMatching::checkAddPoint(int i, double& propx, double& propy) {
   // recenter
   LogicalVector newhappy = (clustinfo == 1);
   if (sum(newhappy) > 0) {
-    optimClusterCenterEuclid2(clustx[newhappy], clusty[newhappy], propx, propy);
+    if (exact){
+        exactClusterCenterEuclid2(clustx[newhappy], clusty[newhappy], propx, propy,penp);
+    } // if(exact)
+    else{
+      optimClusterCenterEuclid2(clustx[newhappy], clusty[newhappy], propx, propy);
+    }
+    
   }
   // Rcout << "Centered proposal: " << propx << " " << propy << std::endl;
   // No update of clustinfo needed! After recentering some of the -1 might have changed

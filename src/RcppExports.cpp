@@ -42,8 +42,8 @@ BEGIN_RCPP
 END_RCPP
 }
 // kMeansBary
-List kMeansBary(NumericVector zetax, NumericVector zetay, NumericMatrix ppmatx, NumericMatrix ppmaty, double penalty, int add_del, int N, double eps, int verbose);
-RcppExport SEXP _ttbary_kMeansBary(SEXP zetaxSEXP, SEXP zetaySEXP, SEXP ppmatxSEXP, SEXP ppmatySEXP, SEXP penaltySEXP, SEXP add_delSEXP, SEXP NSEXP, SEXP epsSEXP, SEXP verboseSEXP) {
+List kMeansBary(NumericVector zetax, NumericVector zetay, NumericMatrix ppmatx, NumericMatrix ppmaty, double penalty, int add_del, int N, double eps, bool exact, int verbose);
+RcppExport SEXP _ttbary_kMeansBary(SEXP zetaxSEXP, SEXP zetaySEXP, SEXP ppmatxSEXP, SEXP ppmatySEXP, SEXP penaltySEXP, SEXP add_delSEXP, SEXP NSEXP, SEXP epsSEXP, SEXP exactSEXP, SEXP verboseSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -55,8 +55,9 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< int >::type add_del(add_delSEXP);
     Rcpp::traits::input_parameter< int >::type N(NSEXP);
     Rcpp::traits::input_parameter< double >::type eps(epsSEXP);
+    Rcpp::traits::input_parameter< bool >::type exact(exactSEXP);
     Rcpp::traits::input_parameter< int >::type verbose(verboseSEXP);
-    rcpp_result_gen = Rcpp::wrap(kMeansBary(zetax, zetay, ppmatx, ppmaty, penalty, add_del, N, eps, verbose));
+    rcpp_result_gen = Rcpp::wrap(kMeansBary(zetax, zetay, ppmatx, ppmaty, penalty, add_del, N, eps, exact, verbose));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -74,8 +75,8 @@ BEGIN_RCPP
 END_RCPP
 }
 // kMeansBaryEps
-List kMeansBaryEps(NumericVector epsvec, NumericVector zetax, NumericVector zetay, NumericMatrix ppmatx, NumericMatrix ppmaty, double penalty, int add_del, IntegerVector relaxationVars, int N, double eps, int verbose);
-RcppExport SEXP _ttbary_kMeansBaryEps(SEXP epsvecSEXP, SEXP zetaxSEXP, SEXP zetaySEXP, SEXP ppmatxSEXP, SEXP ppmatySEXP, SEXP penaltySEXP, SEXP add_delSEXP, SEXP relaxationVarsSEXP, SEXP NSEXP, SEXP epsSEXP, SEXP verboseSEXP) {
+List kMeansBaryEps(NumericVector epsvec, NumericVector zetax, NumericVector zetay, NumericMatrix ppmatx, NumericMatrix ppmaty, double penalty, int add_del, IntegerVector relaxationVars, int N, double eps, bool exact, int verbose);
+RcppExport SEXP _ttbary_kMeansBaryEps(SEXP epsvecSEXP, SEXP zetaxSEXP, SEXP zetaySEXP, SEXP ppmatxSEXP, SEXP ppmatySEXP, SEXP penaltySEXP, SEXP add_delSEXP, SEXP relaxationVarsSEXP, SEXP NSEXP, SEXP epsSEXP, SEXP exactSEXP, SEXP verboseSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -89,8 +90,40 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< IntegerVector >::type relaxationVars(relaxationVarsSEXP);
     Rcpp::traits::input_parameter< int >::type N(NSEXP);
     Rcpp::traits::input_parameter< double >::type eps(epsSEXP);
+    Rcpp::traits::input_parameter< bool >::type exact(exactSEXP);
     Rcpp::traits::input_parameter< int >::type verbose(verboseSEXP);
-    rcpp_result_gen = Rcpp::wrap(kMeansBaryEps(epsvec, zetax, zetay, ppmatx, ppmaty, penalty, add_del, relaxationVars, N, eps, verbose));
+    rcpp_result_gen = Rcpp::wrap(kMeansBaryEps(epsvec, zetax, zetay, ppmatx, ppmaty, penalty, add_del, relaxationVars, N, eps, exact, verbose));
+    return rcpp_result_gen;
+END_RCPP
+}
+// DreznerEuclid2
+List DreznerEuclid2(NumericVector clustx, NumericVector clusty, double penp, bool reduction, bool aleph);
+RcppExport SEXP _ttbary_DreznerEuclid2(SEXP clustxSEXP, SEXP clustySEXP, SEXP penpSEXP, SEXP reductionSEXP, SEXP alephSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< NumericVector >::type clustx(clustxSEXP);
+    Rcpp::traits::input_parameter< NumericVector >::type clusty(clustySEXP);
+    Rcpp::traits::input_parameter< double >::type penp(penpSEXP);
+    Rcpp::traits::input_parameter< bool >::type reduction(reductionSEXP);
+    Rcpp::traits::input_parameter< bool >::type aleph(alephSEXP);
+    rcpp_result_gen = Rcpp::wrap(DreznerEuclid2(clustx, clusty, penp, reduction, aleph));
+    return rcpp_result_gen;
+END_RCPP
+}
+// heuristicCenter2
+List heuristicCenter2(NumericVector clustx, NumericVector clusty, double centerx, double centery, double penp, bool bounds);
+RcppExport SEXP _ttbary_heuristicCenter2(SEXP clustxSEXP, SEXP clustySEXP, SEXP centerxSEXP, SEXP centerySEXP, SEXP penpSEXP, SEXP boundsSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< NumericVector >::type clustx(clustxSEXP);
+    Rcpp::traits::input_parameter< NumericVector >::type clusty(clustySEXP);
+    Rcpp::traits::input_parameter< double >::type centerx(centerxSEXP);
+    Rcpp::traits::input_parameter< double >::type centery(centerySEXP);
+    Rcpp::traits::input_parameter< double >::type penp(penpSEXP);
+    Rcpp::traits::input_parameter< bool >::type bounds(boundsSEXP);
+    rcpp_result_gen = Rcpp::wrap(heuristicCenter2(clustx, clusty, centerx, centery, penp, bounds));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -115,9 +148,11 @@ END_RCPP
 static const R_CallMethodDef CallEntries[] = {
     {"_ttbary_auctionbf2cpp", (DL_FUNC) &_ttbary_auctionbf2cpp, 8},
     {"_ttbary_optimClusterCenterEuclid2", (DL_FUNC) &_ttbary_optimClusterCenterEuclid2, 4},
-    {"_ttbary_kMeansBary", (DL_FUNC) &_ttbary_kMeansBary, 9},
+    {"_ttbary_kMeansBary", (DL_FUNC) &_ttbary_kMeansBary, 10},
     {"_ttbary_sampleFromData", (DL_FUNC) &_ttbary_sampleFromData, 3},
-    {"_ttbary_kMeansBaryEps", (DL_FUNC) &_ttbary_kMeansBaryEps, 11},
+    {"_ttbary_kMeansBaryEps", (DL_FUNC) &_ttbary_kMeansBaryEps, 12},
+    {"_ttbary_DreznerEuclid2", (DL_FUNC) &_ttbary_DreznerEuclid2, 5},
+    {"_ttbary_heuristicCenter2", (DL_FUNC) &_ttbary_heuristicCenter2, 6},
     {"_ttbary_kMeansBaryNet", (DL_FUNC) &_ttbary_kMeansBaryNet, 7},
     {NULL, NULL, 0}
 };

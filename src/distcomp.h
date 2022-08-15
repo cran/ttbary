@@ -14,6 +14,8 @@ double dprime2(double x0, double y0, double x1, double y1, double penp);
 NumericVector cross_dprime2(double x, double y, NumericVector etax, NumericVector etay, double penp);
 NumericMatrix cross_dprime2(NumericVector xix, NumericVector xiy,
                             NumericVector etax, NumericVector etay, double penp);
+NumericMatrix cross_dprime2(NumericVector xix, NumericVector xiy,double penp);
+NumericMatrix cross_dmat(NumericVector xix, NumericVector xiy);                            
 IntegerVector closest_dprime2(double x, double y, NumericVector ppx, NumericVector ppy, double penp);
 
 

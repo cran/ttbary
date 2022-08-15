@@ -2,13 +2,14 @@
 #include <Rcpp/Benchmark/Timer.h>
 #include "domaux.h"
 #include "multimatching.h"
+#include "clustercenter.h"
 
 using namespace Rcpp;
 
 // [[Rcpp::export]]
 List kMeansBary(NumericVector zetax, NumericVector zetay, NumericMatrix ppmatx,
             NumericMatrix ppmaty, double penalty, int add_del = 1e4, int N = 200,
-            double eps = 0.001, int verbose=0) { // add_del=1e4 is because Rcpp complains about both
+            double eps = 0.001, bool exact=false, int verbose=0) { // add_del=1e4 is because Rcpp complains about both
                                                  // INT_MAX and R_PosInf (INT_MAX should be in climits resp. limits.h)
                                                  // R code passes INT_MAX correctly
   NumericVector zetax_out = clone(zetax); // Otherwise mm.zetax points to zetax and the zetax we pass
@@ -17,13 +18,22 @@ List kMeansBary(NumericVector zetax, NumericVector zetay, NumericMatrix ppmatx,
 
   // Construct MultiMatching object, which stores also some intermediate results
   // First call to optimPerm is in the constructor
-  MultiMatching mm(zetax_out, zetay_out, ppmatx, ppmaty, penalty, 2.0);
+  MultiMatching mm(zetax_out, zetay_out, ppmatx, ppmaty, penalty, 2.0, exact); //only the first matching takes place here
 
   double sumttdistp_old = mm.getCost();
   double sumttdistp_new = sumttdistp_old + 1.0;  // just to be safe
 
   double sumttdistp_inter_old = sumttdistp_old;
   double sumttdistp_inter_new = sumttdistp_old + 1.0;
+
+  bool foo = false; 
+  if (exact)
+  {
+    foo = true;
+    exact = false;
+  }
+  //do not want a pointer
+  
 
 
   if (verbose >= 1) {
@@ -40,6 +50,11 @@ List kMeansBary(NumericVector zetax, NumericVector zetay, NumericMatrix ppmatx,
     if (verbose >= 1) {
       Rcout << std::endl << "Iteration " <<  it << ": " << std::endl;
     }
+    if (foo & (it == 2))
+    {
+      exact = true; //the first center calculation is not exact 
+    }
+    
 
     // ----------------------------
     mm.optimBary();
@@ -170,7 +185,7 @@ List sampleFromData(int n, NumericVector ppvecx, NumericVector ppvecy) {
 List kMeansBaryEps(NumericVector epsvec, NumericVector zetax, NumericVector zetay, NumericMatrix ppmatx,
             NumericMatrix ppmaty, double penalty, int add_del = 1e4,
             IntegerVector relaxationVars = IntegerVector::create(3,1,2,2), int N = 200,
-            double eps = 0.001, int verbose=0) { // add_del=1e4 is because Rcpp complains about both
+            double eps = 0.001, bool exact=false, int verbose=0) { // add_del=1e4 is because Rcpp complains about both
                                                  // INT_MAX and R_PosInf (INT_MAX should be in climits resp. limits.h)
                                                  // R code passes INT_MAX correctly
 
@@ -180,7 +195,7 @@ List kMeansBaryEps(NumericVector epsvec, NumericVector zetax, NumericVector zeta
 
   // Construct MultiMatching object, which stores also some intermediate results
   // First call to optimPerm is in the constructor
-  MultiMatching mm(zetax_out, zetay_out, ppmatx, ppmaty, penalty, 2.0);
+  MultiMatching mm(zetax_out, zetay_out, ppmatx, ppmaty, penalty, 2.0, exact);
 
   double sumttdistp_old = mm.getCost();
   double sumttdistp_new = sumttdistp_old + 1.0;  // just to be safe
@@ -336,5 +351,33 @@ List kMeansBaryEps(NumericVector epsvec, NumericVector zetax, NumericVector zeta
   it -= extraround;
 
   List res = List::create(Named("cost") = sumttdistp_new, _["sigma"] = sumSigma, _["barycenterx"] = zetax_out, _["barycentery"] = zetay_out, _["iterations"] = it);
+  return res;
+}
+
+
+//The subroutine for Drezners Algorithm
+// [[Rcpp::export]]
+List DreznerEuclid2(NumericVector clustx, NumericVector clusty, double penp, bool reduction, bool aleph){
+  List res;
+
+  /*NumericVector test;
+  test = seq(3,8);
+  Rcout << "seq(3,8) " << test << std::endl;*/
+
+  if (reduction)
+  {
+    res = exactClusterCenterEuclid2(clustx,clusty,penp,aleph);
+  }
+  else{
+    res = vanillaClusterCenterEuclid2(clustx,clusty,penp);
+  }
+  return res;
+}
+
+//The subroutine of iterating the heuristic clustercenter
+// [[Rcpp::export]]
+List heuristicCenter2(NumericVector clustx, NumericVector clusty, double centerx, double centery, double penp, bool bounds){
+
+  List res = heuristicCenterEuclid2(clustx, clusty, centerx, centery, penp, bounds);
   return res;
 }

@@ -32,7 +32,7 @@
 #' 
 #'          The TT- and RTT-metrics form an umbrella concept that    
 #'          includes the OSPA and Spike Time metrics frequently used in the literature.
-#'          See Müller, Schuhmacher and Mateu (2019) for details.
+#'          See Müller, Schuhmacher and Mateu (2020) for details.
 #'          
 #' @return The corresponding distance between the point patterns if \code{ret_matching}
 #'         is \code{FALSE}. 

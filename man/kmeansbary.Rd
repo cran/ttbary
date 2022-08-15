@@ -12,6 +12,7 @@ kmeansbary(
   surplus = 0,
   N = 200L,
   eps = 0.005,
+  exact = FALSE,
   verbose = 0
 )
 }
@@ -35,6 +36,11 @@ A larger number increases the computational load.}
 \item{eps}{the algorithm stops if the relative improvement of the objective function between two
 iterations is less than eps.}
 
+\item{exact}{logical. Shall the barycenter of a cluster be calculated exactly by Algorithm 1
+of Drezner, Mehrez and Wesolowsky (1991)? In our experience setting \code{exact=TRUE}
+yields no systematic improvement of the overall objective function value, while the
+computation times are substantially larger.}
+
 \item{verbose}{the verbosity level. One of 0, 1, 2, 3, where 0 means silent and 3 means full details.}
 }
 \value{
@@ -57,7 +63,7 @@ Given \eqn{k} planar point patterns \eqn{\xi_1, \ldots, \xi_k}{xi_1, ..., xi_k} 
           Starting from an initial candidate point pattern \code{zeta}, the algorithm alternates
           between assigning a point from each pattern \eqn{\xi_j}{xi_j} to each point of the candidate
           and computing new candidate patterns by shifting, adding and deleting points.
-          A detailed description of the algorithm is given in Müller, Schuhmacher and Mateu (2019).
+          A detailed description of the algorithm is given in Müller, Schuhmacher and Mateu (2020).
           
           For first-time users it is recommended to keep the default values and set \code{penalty}
           to a noticeable fraction of the diameter of the observation window, e.g. between
@@ -85,8 +91,12 @@ sumppdist(res$barycenter, pplist_samecard, penalty=0.1, type="tt", p=2, q=2)
 
 }
 \references{
-Raoul Müller, Dominic Schuhmacher and Jorge Mateu (2020).\cr
-            Metrics and Barycenters for Point Pattern Data.\cr
+Zvi Drezner, Avram Mehrez and George O. Wesolowsky (1991).\cr
+            The facility location problem with limited distances.\cr
+            Transportation Science 25.3 (1991): 183-187.\cr
+            www.jstor.org/stable/25768490\cr
+            \cr
+            Raoul Müller, Dominic Schuhmacher and Jorge Mateu (2020).\cr
             Statistics and Computing 30, 953-972.\cr
             \doi{10.1007/s11222-020-09932-y}
 }
