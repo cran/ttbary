@@ -1,5 +1,16 @@
 ----------------------------------------------------------------
 
+  CHANGES IN ttbary VERSION 0.3-0  (2022-11-16)
+
+OVERVIEW
+
+    o  Necessary changes to make the package compatible with
+       spatstat 3.0 and later. This version will not work with
+       older versions of spatstat
+
+
+----------------------------------------------------------------
+
   CHANGES IN ttbary VERSION 0.3-0  (2022-08-15)
 
 OVERVIEW
@@ -19,7 +30,7 @@ OVERVIEW
 
 ----------------------------------------------------------------
 
-  CHANGES IN ttbary VERSION 0.2-2  (2021-02-19)
+  CHANGES IN ttbary VERSION 0.2-2  (2022-02-19)
 
 OVERVIEW
 

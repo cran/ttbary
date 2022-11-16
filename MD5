@@ -1,11 +1,11 @@
-d044d15bcdf851fb03d9061e2ccd5075 *DESCRIPTION
-647d59489d7c5c7864ce602337fbe5f4 *NAMESPACE
-6befc98af320ec10afc82d1304dc0d74 *NEWS
+17ca8904dad97604073b75090ce76d56 *DESCRIPTION
+aa944103b5b515c7f896b5a0fad587de *NAMESPACE
+8de6c9a682b9db968d25d8f8ac50e4ed *NEWS
 c99996ae921e41539873392c7d5d046f *R/RcppExports.R
 e4aff824f4c8c66ec33bde9149761222 *R/data.R
-b16760b32ebcf248a96b197d80d8e72f *R/kmeansbary.R
+7eadc3208f026aefadaed8cc2ecb8e24 *R/kmeansbary.R
 f7ca77c111e379c7b9530dee0d5eec80 *R/ppdist.R
-0c6ad5b3446721162c89589e8077ab1c *build/partial.rdb
+ea124a494ad7922985532ad3b308e4d5 *build/partial.rdb
 b0bce176607182b3a1a6d0360181642b *data/pplist_diffcard.rda
 87fc59a5e021ae28f323259c62fea823 *data/pplist_samecard.rda
 afe73055068f9c04fdc8e9ee85cf6cfd *inst/CITATION
