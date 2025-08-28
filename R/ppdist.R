@@ -188,9 +188,9 @@ ttdist <- function(dmat, penalty = 1, relative = FALSE,
 #' a single point pattern \code{zeta} and each point pattern in a list \code{pplist}. Then
 #' compute the sum of \eqn{q}-th powers of these distances.
 #'
-#' @param zeta an object of class \code{\link[=ppp]{ppp}}.
-#' @param pplist an object of class \code{\link[=solist]{ppplist}} or an 
-#'        object that can be coerced to this class, such as a list of \code{\link[=ppp]{ppp}}
+#' @param zeta an object of class \code{\link[spatstat.geom]{ppp}}.
+#' @param pplist an object of the \code{spatstat.geom} class \code{ppplist} or an 
+#'        object that can be coerced to this class, such as a list of \code{\link[spatstat.geom]{ppp}}
 #'        objects.  
 #' @param penalty a positive number. The penalty for adding/deleting points. 
 #' @param type either \code{"tt"}/\code{"TT"} for the transport-transform metric
@@ -435,7 +435,7 @@ sumppdistnet <- function(dmat, zeta, ppmatrix, penalty = 1, type = c("tt","rtt",
 #' and \eqn{\eta}{eta} coordinates in \eqn{R^2}{R^2}, this function may be used to display
 #' the result graphically.
 #' 
-#' @param xi,eta objects of class \code{\link[=ppp]{ppp}}.
+#' @param xi,eta objects of class \code{\link[spatstat.geom]{ppp}}.
 #' @param dmat a matrix specifying in its \eqn{(i,j)}-th entry the distance from the
 #'        i-th point of \eqn{\xi}{xi} to the j-th point of \eqn{\eta}{eta}.
 #' @param res the object returned by the call to \code{\link{ppdist}} with \code{ret_matching = TRUE}.

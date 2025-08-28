@@ -1,6 +1,6 @@
 Package: ttbary
-Version: 0.3-1
-Date: 2022-11-16
+Version: 0.3-2
+Date: 2025-08-28
 Title: Barycenter Methods for Spatial Point Patterns
 Authors@R: c(person("Raoul", "Müller", email = "raoul.mueller@uni-goettingen.de", role = "aut"),
              person("Dominic", "Schuhmacher", email = "dominic.schuhmacher@mathematik.uni-goettingen.de", role = c("aut","cre"), comment = c(ORCID = "0000-0001-7079-6313")))
@@ -14,11 +14,11 @@ Description: Computes a point pattern in R^2 or on a graph that is representativ
 LazyData: yes
 Encoding: UTF-8
 License: GPL (>= 2)
-RoxygenNote: 7.2.1
+RoxygenNote: 7.3.2
 NeedsCompilation: yes
-Packaged: 2022-11-16 10:37:49 UTC; schumi
+Packaged: 2025-08-28 18:58:27 UTC; schumi
 Author: Raoul Müller [aut],
-  Dominic Schuhmacher [aut, cre]
-    (<https://orcid.org/0000-0001-7079-6313>)
+  Dominic Schuhmacher [aut, cre] (ORCID:
+    <https://orcid.org/0000-0001-7079-6313>)
 Repository: CRAN
-Date/Publication: 2022-11-16 13:40:02 UTC
+Date/Publication: 2025-08-28 19:40:02 UTC

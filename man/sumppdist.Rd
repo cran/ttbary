@@ -14,10 +14,10 @@ sumppdist(
 )
 }
 \arguments{
-\item{zeta}{an object of class \code{\link[=ppp]{ppp}}.}
+\item{zeta}{an object of class \code{\link[spatstat.geom]{ppp}}.}
 
-\item{pplist}{an object of class \code{\link[=solist]{ppplist}} or an 
-object that can be coerced to this class, such as a list of \code{\link[=ppp]{ppp}}
+\item{pplist}{an object of the \code{spatstat.geom} class \code{ppplist} or an 
+object that can be coerced to this class, such as a list of \code{\link[spatstat.geom]{ppp}}
 objects.}
 
 \item{penalty}{a positive number. The penalty for adding/deleting points.}

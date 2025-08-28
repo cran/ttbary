@@ -7,7 +7,7 @@
 \alias{pplist_diffcard}
 \title{Simulated Point Pattern Lists}
 \format{
-Objects of class \code{pplist}, which are essentially lists of \code{ppp}-objects.
+Objects of the \code{spatstat.geom} class \code{ppplist}, which is essentially a list of \code{ppp}-objects.
 
 An object of class \code{ppplist} (inherits from \code{solist}, \code{anylist}, \code{listof}, \code{list}) of length 80.
 

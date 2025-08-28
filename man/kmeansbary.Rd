@@ -97,6 +97,7 @@ Zvi Drezner, Avram Mehrez and George O. Wesolowsky (1991).\cr
             www.jstor.org/stable/25768490\cr
             \cr
             Raoul Müller, Dominic Schuhmacher and Jorge Mateu (2020).\cr
+            Metrics and barycenters for point pattern data.\cr
             Statistics and Computing 30, 953-972.\cr
             \doi{10.1007/s11222-020-09932-y}
 }

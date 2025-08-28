@@ -7,7 +7,7 @@
 #' @aliases pplist_samecard
 #' @aliases pplist_diffcard
 #' 
-#' @format Objects of class \code{pplist}, which are essentially lists of \code{ppp}-objects.
+#' @format Objects of the \code{spatstat.geom} class \code{ppplist}, which is essentially a list of \code{ppp}-objects.
 #' 
 #' @details
 #' \code{pplist_samecard} contains 80 point patterns of 100 points each. The patterns

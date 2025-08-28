@@ -18,7 +18,7 @@ plotmatch(
 )
 }
 \arguments{
-\item{xi, eta}{objects of class \code{\link[=ppp]{ppp}}.}
+\item{xi, eta}{objects of class \code{\link[spatstat.geom]{ppp}}.}
 
 \item{dmat}{a matrix specifying in its \eqn{(i,j)}-th entry the distance from the
 i-th point of \eqn{\xi}{xi} to the j-th point of \eqn{\eta}{eta}.}
